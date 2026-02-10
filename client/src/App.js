@@ -576,7 +576,10 @@ function App() {
               autoFocus
               onBlur={() => {
                 lastBlurTimeRef.current = Date.now();
-                setEditingTitle(false);
+                setTimeout(() => {
+                  if (!document.hasFocus()) return;
+                  setEditingTitle(false);
+                }, 0);
               }}
               onChange={e => setModalEditTitle(e.target.value)}
               onKeyDown={e => { if (e.key === 'Enter') setEditingTitle(false); }}
@@ -633,9 +636,12 @@ function App() {
               autoFocus
               onBlur={() => {
                 lastBlurTimeRef.current = Date.now();
-                setEditingDesc(false);
-                setModalWidth(null);
-                setDescMinWidth(0);
+                setTimeout(() => {
+                  if (!document.hasFocus()) return;
+                  setEditingDesc(false);
+                  setModalWidth(null);
+                  setDescMinWidth(0);
+                }, 0);
               }}
               onChange={e => setModalEditDesc(e.target.value)}
               onPaste={handleDescPaste}
