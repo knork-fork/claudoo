@@ -287,6 +287,20 @@ h1 {
 .task-title {
   font-size: 1.08rem;
   color: #22223b;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.unsaved-draft-badge {
+  font-size: 0.7rem;
+  font-weight: 600;
+  color: #d97706;
+  background: #fef3c7;
+  border: 1px solid #fcd34d;
+  border-radius: 4px;
+  padding: 1px 6px;
+  white-space: nowrap;
+  flex-shrink: 0;
 }
 .task-description-preview {
   font-size: 0.88rem;

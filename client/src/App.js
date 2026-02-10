@@ -249,15 +249,16 @@ function App() {
 
         // Open modal for a card
         const openTaskModal = (colId, task) => {
+          const draft = drafts[task.id];
           setModalColId(colId);
           setModalTask(task);
-          setModalEditTitle(task.content || '');
-          setModalEditDesc(task.description || '');
+          setModalEditTitle(draft ? draft.title : (task.content || ''));
+          setModalEditDesc(draft ? draft.description : (task.description || ''));
           setEditingTitle(false);
-          setEditingDesc(!task.description);
+          setEditingDesc(draft ? false : !task.description);
           setModalWidth(null);
           setDescMinWidth(0);
-          setModalImageAttachments(task.image_attachments || []);
+          setModalImageAttachments(draft ? draft.imageAttachments : (task.image_attachments || []));
           setModalOpen(true);
         };
 
@@ -278,8 +279,60 @@ function App() {
           );
           setColumnsSanitized(newCols);
           saveState(newCols);
+          setDrafts(prev => {
+            const next = { ...prev };
+            delete next[modalTask.id];
+            return next;
+          });
           setModalOpen(false);
         };
+
+        // Close modal without saving — store draft if changed
+        const closeModalWithDraft = () => {
+          if (modalTask) {
+            const task = columns.flatMap(c => c.tasks).find(t => t.id === modalTask.id);
+            const hasChanges = task && (
+              modalEditTitle !== (task.content || '') ||
+              modalEditDesc !== (task.description || '') ||
+              JSON.stringify(modalImageAttachments) !== JSON.stringify(task.image_attachments || [])
+            );
+            if (hasChanges) {
+              setDrafts(prev => ({
+                ...prev,
+                [modalTask.id]: {
+                  title: modalEditTitle,
+                  description: modalEditDesc,
+                  imageAttachments: modalImageAttachments,
+                }
+              }));
+            } else {
+              // Reverted to saved data — clear any existing draft
+              setDrafts(prev => {
+                const next = { ...prev };
+                delete next[modalTask.id];
+                return next;
+              });
+            }
+          }
+          setModalOpen(false);
+          setModalWidth(null);
+          setDescMinWidth(0);
+        };
+
+        // Cancel — discard draft and close
+        const cancelModal = () => {
+          if (modalTask) {
+            setDrafts(prev => {
+              const next = { ...prev };
+              delete next[modalTask.id];
+              return next;
+            });
+          }
+          setModalOpen(false);
+          setModalWidth(null);
+          setDescMinWidth(0);
+        };
+
       // Delete a column
       const handleDeleteColumn = (colId) => {
         const newCols = columns.filter(col => col.id !== colId);
@@ -295,11 +348,17 @@ function App() {
       );
       setColumnsSanitized(newCols);
       saveState(newCols);
+      setDrafts(prev => {
+        const next = { ...prev };
+        delete next[taskId];
+        return next;
+      });
     };
   const [columns, setColumns] = useState([]);
   const [loading, setLoading] = useState(true);
   const [newColumnTitle, setNewColumnTitle] = useState('');
   const [newTask, setNewTask] = useState({});
+  const [drafts, setDrafts] = useState({});
 
   // Debug: log ids before rendering
   useEffect(() => {
@@ -473,7 +532,10 @@ function App() {
                                     onClick={() => openTaskModal(col.id, task)}
                                   >
                                     <div className="task-content">
-                                      <div className="task-title">{task.content}</div>
+                                      <div className="task-title">
+                                        {task.content}
+                                        {drafts[task.id] && <span className="unsaved-draft-badge">unsaved</span>}
+                                      </div>
                                       {task.description && (
                                         <div className="task-description-preview">
                                           <ReactMarkdown>
@@ -545,10 +607,8 @@ function App() {
           return;
         }
 
-        // Otherwise, close the modal normally
-        setModalOpen(false);
-        setModalWidth(null);
-        setDescMinWidth(0);
+        // Otherwise, close the modal and store draft
+        closeModalWithDraft();
       }}>
         <div
           ref={modalContentRef}
@@ -732,7 +792,7 @@ function App() {
           <div style={{ display: 'flex', gap: 8, justifyContent: 'flex-end' }}>
           <button
             onMouseDown={(e) => e.preventDefault()}
-            onClick={() => setModalOpen(false)}
+            onClick={cancelModal}
           >
             Cancel
           </button>
