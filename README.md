@@ -1,6 +1,8 @@
-# Kanban Board
+# Claudoo
 
-A simple drag-and-drop kanban board for organizing your tasks and projects.
+##### 🚀🚀🚀 Claude + To-Do 🚀🚀🚀
+
+A simple drag-and-drop kanban board for organizing your daily workload with built-in integration for coding agents.
 
 ## Quick Start
 
@@ -17,7 +19,7 @@ This automatically starts both the backend server and frontend application.
 - **Drag and drop** tasks between columns and reorder columns
 - **Markdown support** in card descriptions with syntax-highlighted code blocks
 - **Image attachments** with full-size preview
-- **Claude Code integration**: Copy card links that can be pasted directly into Claude Code editor extension - Claude will read the card description and open any attached images (local environment only)
+- **Claude Code and Copilot Agent integration**: Copy card links that can be pasted directly into agent editor extensions - Claude and Copilot will read the card description and open any attached images (local environment only)
 - **Keyboard shortcut**: `Ctrl+Enter` to save and close cards
 - **Persistent storage**: All changes automatically saved to `kanban.json`
 
@@ -54,5 +56,5 @@ The frontend will be available at **http://localhost:3000** and the backend at *
 
 - `server.js` - Express backend API
 - `client/` - React frontend application
-- `../kanban.json` - Data storage file (in project root)
-- `../start_kanban.sh` - Convenient startup script
+- `kanban.json` - Data storage file (in project root)
+- `start_kanban.sh` - Convenient startup script

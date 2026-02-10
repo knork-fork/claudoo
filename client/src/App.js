@@ -418,7 +418,7 @@ function App() {
   return (
     <div className="App">
       <Toast message="Copied to clipboard!" show={showToast} />
-      <h1>Kanban Board</h1>
+      <h1>Claudoo</h1>
       <div className="add-column">
         <input
           value={newColumnTitle}
