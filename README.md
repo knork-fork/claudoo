@@ -4,6 +4,8 @@
 
 A simple drag-and-drop kanban board for organizing your daily workload with built-in integration for coding agents.
 
+<img width="2251" height="1582" alt="Image" src="https://github.com/user-attachments/assets/3540a2a5-6032-444f-a7bb-13e94a78c68d" />
+
 ## Quick Start
 
 The easiest way to run the application is using the startup script from the project root:
