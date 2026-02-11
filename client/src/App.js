@@ -160,6 +160,7 @@ function App() {
   const visibleDescRef = useRef(null);
   const modalContentRef = useRef(null);
   const lastBlurTimeRef = useRef(0);
+  const initialDescWidthRef = useRef(0);
 
   // All state
   const [descMinWidth, setDescMinWidth] = useState(0);
@@ -188,17 +189,26 @@ function App() {
     if (editingDesc && descTextareaRef.current) {
       const ta = descTextareaRef.current;
 
-      // Auto-resize height
-      ta.style.height = '0px';
-      ta.style.height = Math.max(60, Math.min(ta.scrollHeight, 500)) + 'px';
-
-      // Auto-expand width: temporarily disable wrapping to measure longest line
-      ta.setAttribute('wrap', 'off');
-      const naturalWidth = ta.scrollWidth + 4;
-      ta.removeAttribute('wrap');
+      // Auto-expand width: measure longest line with canvas for subpixel accuracy
+      const cs = getComputedStyle(ta);
+      const ctx = document.createElement('canvas').getContext('2d');
+      ctx.font = cs.font;
+      const lines = (modalEditDesc || '').split('\n');
+      let maxLineWidth = 0;
+      for (const line of lines) {
+        maxLineWidth = Math.max(maxLineWidth, ctx.measureText(line).width);
+      }
+      const pad = parseFloat(cs.paddingLeft) + parseFloat(cs.paddingRight);
+      const bdr = parseFloat(cs.borderLeftWidth) + parseFloat(cs.borderRightWidth);
+      const naturalWidth = Math.ceil(maxLineWidth + pad + bdr) + 1;
 
       const maxW = window.innerWidth * 0.75;
-      setDescMinWidth(prev => Math.min(maxW, Math.max(prev, naturalWidth)));
+      const floor = initialDescWidthRef.current;
+      setDescMinWidth(Math.min(maxW, Math.max(floor, naturalWidth)));
+
+      // Auto-resize height (after width is restored, so wrapping is correct)
+      ta.style.height = '0px';
+      ta.style.height = Math.max(60, Math.min(ta.scrollHeight, 500)) + 'px';
     }
   }, [modalEditDesc, editingDesc]);
 
@@ -726,7 +736,9 @@ function App() {
               }}
               onClick={() => {
                 if (visibleDescRef.current) {
-                  setDescMinWidth(visibleDescRef.current.offsetWidth);
+                  const w = visibleDescRef.current.offsetWidth;
+                  initialDescWidthRef.current = w;
+                  setDescMinWidth(w);
                 }
                 if (modalContentRef.current) {
                   setModalWidth(modalContentRef.current.offsetWidth);
