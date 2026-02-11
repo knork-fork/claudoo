@@ -712,6 +712,7 @@ function App() {
                 border: '1.5px solid #bfc9d1',
                 borderRadius: 6,
                 resize: 'none',
+                lineHeight: 1.4,
                 minHeight: 60,
                 maxHeight: 500,
                 height: descEditHeight,
