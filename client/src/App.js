@@ -738,6 +738,7 @@ function App() {
                 overflowY: 'auto',
                 wordBreak: 'break-word',
                 boxSizing: 'border-box',
+                lineHeight: 1.6,
               }}
               onClick={() => {
                 if (visibleDescRef.current) {
