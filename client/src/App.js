@@ -1,7 +1,7 @@
 
 
 
-import React, { useEffect, useState, useRef } from 'react';
+import React, { useEffect, useLayoutEffect, useState, useRef } from 'react';
 import { DragDropContext, Droppable, Draggable } from 'react-beautiful-dnd';
 import axios from 'axios';
 import ReactMarkdown from 'react-markdown';
@@ -157,13 +157,11 @@ function sanitizeColumns(columns) {
 function App() {
   // All refs
   const descTextareaRef = useRef(null);
-  const descDisplayRef = useRef(null);
   const visibleDescRef = useRef(null);
   const modalContentRef = useRef(null);
   const lastBlurTimeRef = useRef(0);
 
   // All state
-  const [descEditHeight, setDescEditHeight] = useState(60);
   const [descMinWidth, setDescMinWidth] = useState(0);
   const [modalWidth, setModalWidth] = useState(null);
   const [modalOpen, setModalOpen] = useState(false);
@@ -186,10 +184,11 @@ function App() {
     }).catch(() => {});
   }, []);
 
-  useEffect(() => {
-    if (editingDesc && descDisplayRef.current) {
-      const h = Math.max(60, Math.min(descDisplayRef.current.offsetHeight, 500));
-      setDescEditHeight(h);
+  useLayoutEffect(() => {
+    if (editingDesc && descTextareaRef.current) {
+      const ta = descTextareaRef.current;
+      ta.style.height = '0px';
+      ta.style.height = Math.max(60, Math.min(ta.scrollHeight, 500)) + 'px';
     }
   }, [modalEditDesc, editingDesc]);
 
@@ -664,31 +663,6 @@ function App() {
           )}
           </div>
           <div style={{ marginBottom: 18, position: 'relative', minWidth: editingDesc ? descMinWidth : 0 }}>
-          {/* Hidden div for measuring height */}
-          <div
-            ref={descDisplayRef}
-            style={{
-              minHeight: 60,
-              maxHeight: 500,
-              fontSize: '1rem',
-              padding: 8,
-              borderRadius: 6,
-              position: 'absolute',
-              left: 0,
-              right: 0,
-              top: 0,
-              zIndex: -1,
-              visibility: 'hidden',
-              whiteSpace: 'pre-line',
-              wordBreak: 'break-word',
-              boxSizing: 'border-box',
-              border: '1.5px solid #e0eafc',
-              background: '#f8fafc',
-              overflowY: 'auto',
-            }}
-          >
-            {modalEditDesc ? modalEditDesc : 'Click to add description...'}
-          </div>
           {editingDesc ? (
             <textarea
               ref={descTextareaRef}
@@ -715,7 +689,6 @@ function App() {
                 lineHeight: 1.4,
                 minHeight: 60,
                 maxHeight: 500,
-                height: descEditHeight,
                 overflowY: 'auto',
                 boxSizing: 'border-box',
                 background: '#f8fafc',
