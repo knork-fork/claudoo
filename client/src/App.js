@@ -187,8 +187,18 @@ function App() {
   useLayoutEffect(() => {
     if (editingDesc && descTextareaRef.current) {
       const ta = descTextareaRef.current;
+
+      // Auto-resize height
       ta.style.height = '0px';
       ta.style.height = Math.max(60, Math.min(ta.scrollHeight, 500)) + 'px';
+
+      // Auto-expand width: temporarily disable wrapping to measure longest line
+      ta.setAttribute('wrap', 'off');
+      const naturalWidth = ta.scrollWidth + 4;
+      ta.removeAttribute('wrap');
+
+      const maxW = window.innerWidth * 0.75;
+      setDescMinWidth(prev => Math.min(maxW, Math.max(prev, naturalWidth)));
     }
   }, [modalEditDesc, editingDesc]);
 
